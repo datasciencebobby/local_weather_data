@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pandas = "*"
+requests = "*"
+matplotlib = "*"
+datetime = "*"
+folium = "*"
+streamlit = "*"
+streamlit-folium = "*"
+ipykernel = "*"
+jupyter = "*"
+ipyleaflet = "*"
+ipywidgets = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.14"
