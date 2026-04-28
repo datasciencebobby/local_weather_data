@@ -8,40 +8,34 @@ from datetime import datetime
 latitude = "37.410276"
 longitude = "-79.054780"
 
-# The URL of the API endpoint
-url = f"https://api.weather.gov/points/{latitude},{longitude}"
+def local_weather_data(lat, long):
 
-# Sending the request
-response = requests.get(url)
+    # The URL of the API endpoint
+    url = f"https://api.weather.gov/points/{lat},{long}"
 
-# Checking if the request was successful (Status Code 200)
-if response.status_code == 200:
-    data = response.json()
-    #print(data)
-else:
-    print(f"Error: {response.status_code}")
+    # Sending the request
+    response = requests.get(url)
 
-hourly_forcast_url = data["properties"]["forecastHourly"]
-response_hourly = requests.get(hourly_forcast_url)
-hourly_data = response_hourly.json()
+    # Checking if the request was successful (Status Code 200)
+    if response.status_code == 200:
+        data = response.json()
+    else:
+        print(f"Error: {response.status_code}")
+        return
 
+    hourly_forcast_url = data["properties"]["forecastHourly"]
+    response_hourly = requests.get(hourly_forcast_url)
+    hourly_data = response_hourly.json()
 
+    hourly_df = pd.DataFrame(hourly_data["properties"]["periods"])
 
-hourly_df = pd.DataFrame(hourly_data["properties"]["periods"])
-print(hourly_df.columns) 
-print(hourly_df["windSpeed"].head(10))
+    def strip_fn(x):
+        return float(x.replace("mph","").strip())
 
-def strip_fn(x):
-    return float(x.replace("mph","").strip())
+    hourly_df["windSpeed"] = hourly_df["windSpeed"].apply(strip_fn) 
+    
+    hourly_df["startTime"] = pd.to_datetime(hourly_df["startTime"])
 
-hourly_df["windSpeed"] = hourly_df["windSpeed"].apply(strip_fn) 
+    return hourly_df
 
-print(hourly_df["windSpeed"].head(10))
-  
-hourly_df["startTime"] = pd.to_datetime(hourly_df["startTime"])
-
-#plt.plot(hourly_df["startTime"], hourly_df["temperature"])
-plt.plot(hourly_df["startTime"], hourly_df["windSpeed"])
-#plt.plot(hourly_df["probabilityOfPrecipitation"])
-
-plt.show()
+df = local_weather_data(latitude, longitude)
